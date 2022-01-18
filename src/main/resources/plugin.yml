@@ -1,0 +1,11 @@
+name: BrigadierManager
+version: ${project.version}
+main: net.clementraynaud.brigadiermanager.BrigadierManager
+api-version: 1.13
+authors: [ carlodrift ]
+website: ${project.url}
+commands:
+  brigadier:
+    permission: op
+    description: A BrigadierManager provided command.
+    usage: /brigadier
