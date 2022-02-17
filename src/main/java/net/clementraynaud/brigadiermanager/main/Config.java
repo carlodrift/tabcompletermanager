@@ -20,7 +20,6 @@
 package net.clementraynaud.brigadiermanager.main;
 
 import org.bukkit.entity.Player;
-import org.bukkit.event.Listener;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -28,7 +27,7 @@ import java.util.List;
 
 import static net.clementraynaud.brigadiermanager.BrigadierManager.getInstance;
 
-public abstract class Config implements Listener {
+public abstract class Config {
     private static final String HIDDEN_COMMANDS_FIELD = "hidden-commands";
     private static final String IGNORE_OPS_FIELD = "ignore-ops";
     private static final String RETAIN_BRIGADIER_COMMAND_FOR_OPS_FIELD = "retain-brigadier-command-for-ops";

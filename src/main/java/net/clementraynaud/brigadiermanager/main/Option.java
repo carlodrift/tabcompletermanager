@@ -71,7 +71,9 @@ public enum Option {
                 sendErrorMessage(sender, "There are no displayed commands.");
             } else {
                 save();
-                setHiddenCommands(Stream.concat(getDisplayedCommands().stream(), getHiddenCommands().stream()).collect(Collectors.toList()));
+                setHiddenCommands(Stream.concat(
+                        getDisplayedCommands().stream(),
+                        getHiddenCommands().stream()).collect(Collectors.toList()));
                 sendValidationMessage(sender, "All displayed commands are now hidden.");
             }
         }
@@ -126,11 +128,17 @@ public enum Option {
     };
 
     public static String[] getList() {
-        return Stream.of(Option.values()).map(Enum::name).map(String::toLowerCase).map(s -> CaseUtils.toCamelCase(s, false, '_')).toArray(String[]::new);
+        return Stream.of(Option.values())
+                .map(Enum::name)
+                .map(String::toLowerCase)
+                .map(s -> CaseUtils.toCamelCase(s, false, '_'))
+                .toArray(String[]::new);
     }
 
     public static Option getOption(String option) {
-        return Stream.of(Option.values()).filter(o -> o.toString().equalsIgnoreCase(option)).findFirst().orElse(null);
+        return Stream.of(Option.values())
+                .filter(o -> o.toString().equalsIgnoreCase(option))
+                .findFirst().orElse(null);
     }
 
     public abstract void execute(CommandSender sender, String arg);

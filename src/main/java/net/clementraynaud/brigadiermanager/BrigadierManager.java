@@ -43,14 +43,14 @@ public final class BrigadierManager extends JavaPlugin {
     public void onEnable() {
         setInstance(this);
         saveDefaultConfig();
-        BrigadierCommand brigadierCommand = new BrigadierCommand();
         Bukkit.getPluginManager().registerEvents(new PlayerCommandSendListener(), this);
+        BrigadierCommand brigadierCommand = new BrigadierCommand();
         getCommand("brigadier").setExecutor(brigadierCommand);
         getCommand("brigadier").setTabCompleter(brigadierCommand);
         new Metrics(this, 13996);
         new UpdateUtil(this, 83140).getVersion(version -> {
             if (!getDescription().getVersion().equals(version)) {
-                getLogger().warning("An update is available: https://spigotmc.org/resources/brigadiermanager.83140");
+                getLogger().warning("You are using an outdated version (" + getDescription().getVersion() + "). Download the latest version (" + version + ") here:  https://spigotmc.org/resources/brigadiermanager.83140.");
             }
         });
     }

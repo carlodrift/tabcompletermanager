@@ -51,7 +51,7 @@ public class BrigadierCommand implements CommandExecutor, TabCompleter {
             sendErrorMessage(sender, "This command is not executable from the console.");
             return true;
         }
-        if (args.length == 0) {
+        if (args.length == 0 || Option.getOption(args[0]) == null) {
             sendUsage(sender);
             return true;
         }
@@ -63,14 +63,20 @@ public class BrigadierCommand implements CommandExecutor, TabCompleter {
     @Override
     public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
         if (args.length == 1) {
-            return Stream.of(Option.getList()).filter(s -> s.startsWith(args[0])).collect(Collectors.toList());
+            return Stream.of(Option.getList())
+                    .filter(s -> s.startsWith(args[0])).
+                    collect(Collectors.toList());
         }
         if (args.length == 2) {
             if (args[0].equalsIgnoreCase(Option.HIDE.toString())) {
-                return getDisplayedCommands().stream().filter(s -> s.startsWith(args[1])).collect(Collectors.toList());
+                return getDisplayedCommands().stream()
+                        .filter(s -> s.startsWith(args[1]))
+                        .collect(Collectors.toList());
             }
             if (args[0].equalsIgnoreCase(Option.UNHIDE.toString())) {
-                return getHiddenCommands().stream().filter(s -> s.startsWith(args[1])).collect(Collectors.toList());
+                return getHiddenCommands().stream()
+                        .filter(s -> s.startsWith(args[1]))
+                        .collect(Collectors.toList());
             }
         }
         return Collections.emptyList();
