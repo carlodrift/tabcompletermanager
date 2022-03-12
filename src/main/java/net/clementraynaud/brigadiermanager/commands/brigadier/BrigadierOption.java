@@ -17,24 +17,24 @@
  * along with BrigadierManager.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package net.clementraynaud.brigadiermanager.main;
+package net.clementraynaud.brigadiermanager.commands.brigadier;
 
-import net.clementraynaud.brigadiermanager.commands.BrigadierCommand;
 import net.clementraynaud.brigadiermanager.util.MessageUtil;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.apache.commons.text.CaseUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static net.clementraynaud.brigadiermanager.BrigadierManager.PREFIX;
-import static net.clementraynaud.brigadiermanager.main.Config.*;
+import static net.clementraynaud.brigadiermanager.config.Config.*;
 import static net.clementraynaud.brigadiermanager.util.MessageUtil.sendErrorMessage;
 import static net.clementraynaud.brigadiermanager.util.MessageUtil.sendValidationMessage;
 
-public enum Option {
+public enum BrigadierOption {
     DISPLAYED {
         @Override
         public void execute(CommandSender sender, String arg) {
@@ -58,24 +58,22 @@ public enum Option {
             }
             if (!getDisplayedCommands().contains(arg)) {
                 sendErrorMessage(sender, "/" + arg + " is already hidden or does not exist.");
-            } else {
-                sendValidationMessage(sender, "/" + arg + " is now hidden.");
-                addHiddenCommand(arg);
-                save();
+                return;
             }
+            sendValidationMessage(sender, "/" + arg + " is now hidden.");
+            addHiddenCommand(arg);
         }
     }, HIDE_ALL {
         @Override
         public void execute(CommandSender sender, String arg) {
             if (getDisplayedCommands().isEmpty()) {
                 sendErrorMessage(sender, "There are no displayed commands.");
-            } else {
-                save();
-                setHiddenCommands(Stream.concat(
-                        getDisplayedCommands().stream(),
-                        getHiddenCommands().stream()).collect(Collectors.toList()));
-                sendValidationMessage(sender, "All displayed commands are now hidden.");
+                return;
             }
+            sendValidationMessage(sender, "All displayed commands are now hidden.");
+            setHiddenCommands(Stream.concat(
+                    getDisplayedCommands().stream(),
+                    getHiddenCommands().stream()).collect(Collectors.toSet()));
         }
     }, IGNORE_OPS {
         @Override
@@ -86,7 +84,6 @@ public enum Option {
                 sendValidationMessage(sender, "Operators are no longer affected by hidden commands.");
             }
             setOperatorsIgnored(!areOperatorsIgnored());
-            save();
         }
     }, RETAIN_BRIGADIER_COMMAND_FOR_OPS {
         @Override
@@ -97,7 +94,6 @@ public enum Option {
                 sendValidationMessage(sender, "/brigadier is now retained for operators.");
             }
             setBrigadierCommandRetainedForOperators(!isBrigadierCommandRetainedForOperators());
-            save();
         }
     }, UNHIDE {
         @Override
@@ -108,35 +104,31 @@ public enum Option {
             }
             if (!getHiddenCommands().contains(arg)) {
                 sendErrorMessage(sender, "/" + arg + " is not hidden.");
-            } else {
-                sendValidationMessage(sender, "/" + arg + " is now displayed.");
-                removeHiddenCommand(arg);
-                save();
+                return;
             }
+            sendValidationMessage(sender, "/" + arg + " is now displayed.");
+            removeHiddenCommand(arg);
         }
     }, UNHIDE_ALL {
         @Override
         public void execute(CommandSender sender, String arg) {
             if (getHiddenCommands().isEmpty()) {
                 sendErrorMessage(sender, "There are no hidden commands.");
-            } else {
-                sendValidationMessage(sender, "All hidden commands are now displayed.");
-                clearHiddenCommands();
-                save();
+                return;
             }
+            sendValidationMessage(sender, "All hidden commands are now displayed.");
+            clearHiddenCommands();
         }
     };
 
-    public static String[] getList() {
-        return Stream.of(Option.values())
-                .map(Enum::name)
-                .map(String::toLowerCase)
-                .map(s -> CaseUtils.toCamelCase(s, false, '_'))
-                .toArray(String[]::new);
+    public static Set<String> getList() {
+        return Stream.of(BrigadierOption.values())
+                .map(Enum::toString)
+                .collect(Collectors.toSet());
     }
 
-    public static Option getOption(String option) {
-        return Stream.of(Option.values())
+    public static BrigadierOption getOption(String option) {
+        return Stream.of(BrigadierOption.values())
                 .filter(o -> o.toString().equalsIgnoreCase(option))
                 .findFirst().orElse(null);
     }
@@ -144,7 +136,7 @@ public enum Option {
     public abstract void execute(CommandSender sender, String arg);
 
     @Override
-    public final String toString() {
-        return super.name().replace("_", "");
+    public String toString() {
+        return CaseUtils.toCamelCase(super.toString(), false, '_');
     }
 }

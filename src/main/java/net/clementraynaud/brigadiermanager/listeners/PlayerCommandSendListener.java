@@ -24,19 +24,19 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerCommandSendEvent;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
-import static net.clementraynaud.brigadiermanager.main.Config.*;
+import static net.clementraynaud.brigadiermanager.config.Config.*;
 
 public class PlayerCommandSendListener implements Listener {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
-    public void onPlayerCommandSendEvent(PlayerCommandSendEvent e) {
+    public void onPlayerCommandSend(PlayerCommandSendEvent e) {
         if (!(areOperatorsIgnored() && e.getPlayer().isOp())) {
             e.getCommands().removeIf(s -> getHiddenCommands().contains(s));
         }
         if (e.getPlayer().isOp()) {
-            List<String> commands = new ArrayList<>(e.getCommands());
+            Set<String> commands = new HashSet<>(e.getCommands());
             commands.removeIf(s -> getHiddenCommands().contains(s));
             setDisplayedCommands(commands);
             if (isBrigadierCommandRetainedForOperators()) {

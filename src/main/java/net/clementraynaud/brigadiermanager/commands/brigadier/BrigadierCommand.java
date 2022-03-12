@@ -17,9 +17,8 @@
  * along with BrigadierManager.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package net.clementraynaud.brigadiermanager.commands;
+package net.clementraynaud.brigadiermanager.commands.brigadier;
 
-import net.clementraynaud.brigadiermanager.main.Option;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -32,17 +31,16 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static net.clementraynaud.brigadiermanager.BrigadierManager.PREFIX;
-import static net.clementraynaud.brigadiermanager.main.Config.getDisplayedCommands;
-import static net.clementraynaud.brigadiermanager.main.Config.getHiddenCommands;
+import static net.clementraynaud.brigadiermanager.config.Config.getDisplayedCommands;
+import static net.clementraynaud.brigadiermanager.config.Config.getHiddenCommands;
 import static net.clementraynaud.brigadiermanager.util.MessageUtil.sendErrorMessage;
 
 public class BrigadierCommand implements CommandExecutor, TabCompleter {
     public static void sendUsage(CommandSender sender) {
         sender.sendMessage(PREFIX + ChatColor.GRAY + "Usage: /brigadier <option> [command]");
-        sender.sendMessage(ChatColor.GRAY + "Options: " + String.join(", ", Option.getList()));
+        sender.sendMessage(ChatColor.GRAY + "Options: " + String.join(", ", BrigadierOption.getList()));
     }
 
     @Override
@@ -51,11 +49,11 @@ public class BrigadierCommand implements CommandExecutor, TabCompleter {
             sendErrorMessage(sender, "This command is not executable from the console.");
             return true;
         }
-        if (args.length == 0 || Option.getOption(args[0]) == null) {
+        if (args.length == 0 || BrigadierOption.getOption(args[0]) == null) {
             sendUsage(sender);
             return true;
         }
-        Option.getOption(args[0]).execute(sender, args.length == 1 ? "" : args[1]);
+        BrigadierOption.getOption(args[0]).execute(sender, args.length == 1 ? "" : args[1]);
         return true;
     }
 
@@ -63,19 +61,21 @@ public class BrigadierCommand implements CommandExecutor, TabCompleter {
     @Override
     public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
         if (args.length == 1) {
-            return Stream.of(Option.getList())
-                    .filter(s -> s.startsWith(args[0])).
-                    collect(Collectors.toList());
+            args[0] = args[0].toLowerCase();
+            return BrigadierOption.getList().stream()
+                    .filter(o -> o.toLowerCase().startsWith(args[0]))
+                    .collect(Collectors.toList());
         }
         if (args.length == 2) {
-            if (args[0].equalsIgnoreCase(Option.HIDE.toString())) {
+            args[1] = args[1].toLowerCase();
+            if (args[0].equalsIgnoreCase(BrigadierOption.HIDE.toString())) {
                 return getDisplayedCommands().stream()
-                        .filter(s -> s.startsWith(args[1]))
+                        .filter(o -> o.toLowerCase().startsWith(args[1]))
                         .collect(Collectors.toList());
             }
-            if (args[0].equalsIgnoreCase(Option.UNHIDE.toString())) {
+            if (args[0].equalsIgnoreCase(BrigadierOption.UNHIDE.toString())) {
                 return getHiddenCommands().stream()
-                        .filter(s -> s.startsWith(args[1]))
+                        .filter(o -> o.toLowerCase().startsWith(args[1]))
                         .collect(Collectors.toList());
             }
         }

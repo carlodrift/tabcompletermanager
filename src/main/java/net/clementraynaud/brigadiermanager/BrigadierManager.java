@@ -19,7 +19,7 @@
 
 package net.clementraynaud.brigadiermanager;
 
-import net.clementraynaud.brigadiermanager.commands.BrigadierCommand;
+import net.clementraynaud.brigadiermanager.commands.brigadier.BrigadierCommand;
 import net.clementraynaud.brigadiermanager.listeners.PlayerCommandSendListener;
 import net.clementraynaud.brigadiermanager.util.UpdateUtil;
 import org.bstats.bukkit.Metrics;

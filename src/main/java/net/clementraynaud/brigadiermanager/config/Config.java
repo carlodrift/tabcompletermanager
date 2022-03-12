@@ -17,13 +17,14 @@
  * along with BrigadierManager.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package net.clementraynaud.brigadiermanager.main;
+package net.clementraynaud.brigadiermanager.config;
 
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static net.clementraynaud.brigadiermanager.BrigadierManager.getInstance;
 
@@ -31,39 +32,41 @@ public abstract class Config {
     private static final String HIDDEN_COMMANDS_FIELD = "hidden-commands";
     private static final String IGNORE_OPS_FIELD = "ignore-ops";
     private static final String RETAIN_BRIGADIER_COMMAND_FOR_OPS_FIELD = "retain-brigadier-command-for-ops";
-    private static List<String> displayedCommands = new ArrayList<>();
+    private static Set<String> displayedCommands = new HashSet<>();
 
     private Config() {
     }
 
-    public static Collection<String> getDisplayedCommands() {
+    public static Set<String> getDisplayedCommands() {
         return displayedCommands;
     }
 
-    public static void setDisplayedCommands(List<String> commands) {
+    public static void setDisplayedCommands(Set<String> commands) {
         displayedCommands = commands;
     }
 
-    public static Collection<String> getHiddenCommands() {
-        return getInstance().getConfig().getStringList(HIDDEN_COMMANDS_FIELD);
+    public static Set<String> getHiddenCommands() {
+        return new HashSet<>(getInstance().getConfig().getStringList(HIDDEN_COMMANDS_FIELD));
     }
 
-    public static void setHiddenCommands(Collection<String> commands) {
-        getInstance().getConfig().set(HIDDEN_COMMANDS_FIELD, commands);
+    public static void setHiddenCommands(Set<String> commands) {
+        getInstance().getConfig().set(HIDDEN_COMMANDS_FIELD, new ArrayList<>(commands));
+        save();
     }
 
     public static void clearHiddenCommands() {
         getInstance().getConfig().set(HIDDEN_COMMANDS_FIELD, null);
+        save();
     }
 
     public static void addHiddenCommand(String command) {
-        Collection<String> hiddenCommands = getHiddenCommands();
+        Set<String> hiddenCommands = getHiddenCommands();
         hiddenCommands.add(command);
         setHiddenCommands(hiddenCommands);
     }
 
     public static void removeHiddenCommand(String command) {
-        Collection<String> hiddenCommands = getHiddenCommands();
+        Set<String> hiddenCommands = getHiddenCommands();
         hiddenCommands.remove(command);
         setHiddenCommands(hiddenCommands);
     }
@@ -74,6 +77,7 @@ public abstract class Config {
 
     public static void setOperatorsIgnored(boolean ignored) {
         getInstance().getConfig().set(IGNORE_OPS_FIELD, ignored);
+        save();
     }
 
     public static boolean isBrigadierCommandRetainedForOperators() {
@@ -82,9 +86,10 @@ public abstract class Config {
 
     public static void setBrigadierCommandRetainedForOperators(boolean retained) {
         getInstance().getConfig().set(RETAIN_BRIGADIER_COMMAND_FOR_OPS_FIELD, retained);
+        save();
     }
 
-    public static void save() {
+    private static void save() {
         getInstance().saveConfig();
         getInstance().getServer().getOnlinePlayers().forEach(Player::updateCommands);
     }
