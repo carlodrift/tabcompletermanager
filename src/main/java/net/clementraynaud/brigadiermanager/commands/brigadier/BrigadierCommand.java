@@ -19,6 +19,9 @@
 
 package net.clementraynaud.brigadiermanager.commands.brigadier;
 
+import net.clementraynaud.brigadiermanager.BrigadierManager;
+import net.clementraynaud.brigadiermanager.config.Config;
+import net.clementraynaud.brigadiermanager.util.MessageUtil;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -32,25 +35,21 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static net.clementraynaud.brigadiermanager.BrigadierManager.PREFIX;
-import static net.clementraynaud.brigadiermanager.config.Config.getDisplayedCommands;
-import static net.clementraynaud.brigadiermanager.config.Config.getHiddenCommands;
-import static net.clementraynaud.brigadiermanager.util.MessageUtil.sendErrorMessage;
-
 public class BrigadierCommand implements CommandExecutor, TabCompleter {
+
     public static void sendUsage(CommandSender sender) {
-        sender.sendMessage(PREFIX + ChatColor.GRAY + "Usage: /brigadier <option> [command]");
+        sender.sendMessage(BrigadierManager.PREFIX + ChatColor.GRAY + "Usage: /brigadier <option> [command]");
         sender.sendMessage(ChatColor.GRAY + "Options: " + String.join(", ", BrigadierOption.getList()));
     }
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         if (!(sender instanceof Player)) {
-            sendErrorMessage(sender, "This command is not executable from the console.");
+            MessageUtil.sendErrorMessage(sender, "This command is not executable from the console.");
             return true;
         }
         if (args.length == 0 || BrigadierOption.getOption(args[0]) == null) {
-            sendUsage(sender);
+            BrigadierCommand.sendUsage(sender);
             return true;
         }
         BrigadierOption.getOption(args[0]).execute(sender, args.length == 1 ? "" : args[1]);
@@ -69,12 +68,12 @@ public class BrigadierCommand implements CommandExecutor, TabCompleter {
         if (args.length == 2) {
             args[1] = args[1].toLowerCase();
             if (args[0].equalsIgnoreCase(BrigadierOption.HIDE.toString())) {
-                return getDisplayedCommands().stream()
+                return Config.getDisplayedCommands().stream()
                         .filter(o -> o.toLowerCase().startsWith(args[1]))
                         .collect(Collectors.toList());
             }
             if (args[0].equalsIgnoreCase(BrigadierOption.UNHIDE.toString())) {
-                return getHiddenCommands().stream()
+                return Config.getHiddenCommands().stream()
                         .filter(o -> o.toLowerCase().startsWith(args[1]))
                         .collect(Collectors.toList());
             }

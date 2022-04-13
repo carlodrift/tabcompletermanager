@@ -19,6 +19,8 @@
 
 package net.clementraynaud.brigadiermanager.commands.brigadier;
 
+import net.clementraynaud.brigadiermanager.BrigadierManager;
+import net.clementraynaud.brigadiermanager.config.Config;
 import net.clementraynaud.brigadiermanager.util.MessageUtil;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.apache.commons.text.CaseUtils;
@@ -29,95 +31,97 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static net.clementraynaud.brigadiermanager.BrigadierManager.PREFIX;
-import static net.clementraynaud.brigadiermanager.config.Config.*;
-import static net.clementraynaud.brigadiermanager.util.MessageUtil.sendErrorMessage;
-import static net.clementraynaud.brigadiermanager.util.MessageUtil.sendValidationMessage;
-
 public enum BrigadierOption {
     DISPLAYED {
         @Override
         public void execute(CommandSender sender, String arg) {
-            TextComponent message = new TextComponent(PREFIX + ChatColor.GRAY + "Move your mouse over this message to see the displayed commands.");
-            MessageUtil.setHoverEvent(message, getDisplayedCommands().toString());
+            TextComponent message = new TextComponent(BrigadierManager.PREFIX + ChatColor.GRAY + "Move your mouse over this message to see the displayed commands.");
+            MessageUtil.setHoverEvent(message, Config.getDisplayedCommands().toString());
             sender.spigot().sendMessage(message);
         }
-    }, HIDDEN {
+    },
+    HIDDEN {
         @Override
         public void execute(CommandSender sender, String arg) {
-            TextComponent message = new TextComponent(PREFIX + ChatColor.GRAY + "Move your mouse over this message to see the hidden commands.");
-            MessageUtil.setHoverEvent(message, getHiddenCommands().toString());
+            TextComponent message = new TextComponent(BrigadierManager.PREFIX + ChatColor.GRAY + "Move your mouse over this message to see the hidden commands.");
+            MessageUtil.setHoverEvent(message, Config.getHiddenCommands().toString());
             sender.spigot().sendMessage(message);
         }
-    }, HIDE {
+    },
+    HIDE {
         @Override
         public void execute(CommandSender sender, String arg) {
             if (arg.isEmpty()) {
                 BrigadierCommand.sendUsage(sender);
                 return;
             }
-            if (!getDisplayedCommands().contains(arg)) {
-                sendErrorMessage(sender, "/" + arg + " is already hidden or does not exist.");
+            if (!Config.getDisplayedCommands().contains(arg)) {
+                MessageUtil.sendErrorMessage(sender, "/" + arg + " is already hidden or does not exist.");
                 return;
             }
-            sendValidationMessage(sender, "/" + arg + " is now hidden.");
-            addHiddenCommand(arg);
+            MessageUtil.sendValidationMessage(sender, "/" + arg + " is now hidden.");
+            Config.addHiddenCommand(arg);
         }
-    }, HIDE_ALL {
+    },
+    HIDE_ALL {
         @Override
         public void execute(CommandSender sender, String arg) {
-            if (getDisplayedCommands().isEmpty()) {
-                sendErrorMessage(sender, "There are no displayed commands.");
+            if (Config.getDisplayedCommands().isEmpty()) {
+                MessageUtil.sendErrorMessage(sender, "There are no displayed commands.");
                 return;
             }
-            sendValidationMessage(sender, "All displayed commands are now hidden.");
-            setHiddenCommands(Stream.concat(
-                    getDisplayedCommands().stream(),
-                    getHiddenCommands().stream()).collect(Collectors.toSet()));
+            MessageUtil.sendValidationMessage(sender, "All displayed commands are now hidden.");
+            Config.setHiddenCommands(Stream.concat(
+                    Config.getDisplayedCommands().stream(),
+                    Config.getHiddenCommands().stream()).collect(Collectors.toSet()));
         }
-    }, IGNORE_OPS {
+    },
+    IGNORE_OPS {
         @Override
         public void execute(CommandSender sender, String arg) {
-            if (areOperatorsIgnored()) {
-                sendValidationMessage(sender, "Operators are now affected by hidden commands.");
+            if (Config.areOperatorsIgnored()) {
+                MessageUtil.sendValidationMessage(sender, "Operators are now affected by hidden commands.");
             } else {
-                sendValidationMessage(sender, "Operators are no longer affected by hidden commands.");
+                MessageUtil.sendValidationMessage(sender, "Operators are no longer affected by hidden commands.");
             }
-            setOperatorsIgnored(!areOperatorsIgnored());
+            Config.setOperatorsIgnored(!Config.areOperatorsIgnored());
         }
-    }, RETAIN_BRIGADIER_COMMAND_FOR_OPS {
+    },
+    RETAIN_BRIGADIER_COMMAND_FOR_OPS {
         @Override
         public void execute(CommandSender sender, String arg) {
-            if (isBrigadierCommandRetainedForOperators()) {
-                sendValidationMessage(sender, "/brigadier is no longer retained for operators.");
+            if (Config.isBrigadierCommandRetainedForOperators()) {
+                MessageUtil.sendValidationMessage(sender, "/brigadier is no longer retained for operators.");
             } else {
-                sendValidationMessage(sender, "/brigadier is now retained for operators.");
+                MessageUtil.sendValidationMessage(sender, "/brigadier is now retained for operators.");
             }
-            setBrigadierCommandRetainedForOperators(!isBrigadierCommandRetainedForOperators());
+            Config.setBrigadierCommandRetainedForOperators(!Config.isBrigadierCommandRetainedForOperators());
         }
-    }, UNHIDE {
+    },
+    UNHIDE {
         @Override
         public void execute(CommandSender sender, String arg) {
             if (arg.isEmpty()) {
                 BrigadierCommand.sendUsage(sender);
                 return;
             }
-            if (!getHiddenCommands().contains(arg)) {
-                sendErrorMessage(sender, "/" + arg + " is not hidden.");
+            if (!Config.getHiddenCommands().contains(arg)) {
+                MessageUtil.sendErrorMessage(sender, "/" + arg + " is not hidden.");
                 return;
             }
-            sendValidationMessage(sender, "/" + arg + " is now displayed.");
-            removeHiddenCommand(arg);
+            MessageUtil.sendValidationMessage(sender, "/" + arg + " is now displayed.");
+            Config.removeHiddenCommand(arg);
         }
-    }, UNHIDE_ALL {
+    },
+    UNHIDE_ALL {
         @Override
         public void execute(CommandSender sender, String arg) {
-            if (getHiddenCommands().isEmpty()) {
-                sendErrorMessage(sender, "There are no hidden commands.");
+            if (Config.getHiddenCommands().isEmpty()) {
+                MessageUtil.sendErrorMessage(sender, "There are no hidden commands.");
                 return;
             }
-            sendValidationMessage(sender, "All hidden commands are now displayed.");
-            clearHiddenCommands();
+            MessageUtil.sendValidationMessage(sender, "All hidden commands are now displayed.");
+            Config.clearHiddenCommands();
         }
     };
 

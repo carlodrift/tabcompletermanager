@@ -19,6 +19,7 @@
 
 package net.clementraynaud.brigadiermanager.util;
 
+import net.clementraynaud.brigadiermanager.BrigadierManager;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -26,9 +27,8 @@ import net.md_5.bungee.api.chat.hover.content.Text;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
-import static net.clementraynaud.brigadiermanager.BrigadierManager.PREFIX;
-
 public interface MessageUtil {
+
     @SuppressWarnings("deprecation")
     static void setHoverEvent(TextComponent message, String hover) {
         try {
@@ -39,14 +39,14 @@ public interface MessageUtil {
     }
 
     static void sendMessage(CommandSender sender, String message, ChatColor color) {
-        sender.sendMessage(PREFIX + color + message);
+        sender.sendMessage(BrigadierManager.PREFIX + color + message);
     }
 
     static void sendErrorMessage(CommandSender sender, String message) {
-        sendMessage(sender, message, ChatColor.RED);
+        MessageUtil.sendMessage(sender, message, ChatColor.RED);
     }
 
     static void sendValidationMessage(CommandSender sender, String message) {
-        sendMessage(sender, message, ChatColor.GREEN);
+        MessageUtil.sendMessage(sender, message, ChatColor.GREEN);
     }
 }

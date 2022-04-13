@@ -25,32 +25,44 @@ import net.clementraynaud.brigadiermanager.util.UpdateUtil;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class BrigadierManager extends JavaPlugin {
-    public static final String PREFIX = ChatColor.LIGHT_PURPLE + "BrigadierManager " + ChatColor.DARK_GRAY + "• " + ChatColor.RESET;
-    private static BrigadierManager instance;
 
-    public static BrigadierManager getInstance() {
-        return instance;
+    public static final String PREFIX = ChatColor.LIGHT_PURPLE + "BrigadierManager " + ChatColor.DARK_GRAY + "• " + ChatColor.RESET;
+    private static FileConfiguration config;
+    private static JavaPlugin plugin;
+
+    public static FileConfiguration getConfigFile() {
+        return BrigadierManager.config;
     }
 
-    public static void setInstance(BrigadierManager instance) {
-        BrigadierManager.instance = instance;
+    public static void setConfigFile(FileConfiguration config) {
+        BrigadierManager.config = config;
+    }
+
+    public static JavaPlugin getPlugin() {
+        return BrigadierManager.plugin;
+    }
+
+    public static void setPlugin(JavaPlugin plugin) {
+        BrigadierManager.plugin = plugin;
     }
 
     @Override
     public void onEnable() {
-        setInstance(this);
-        saveDefaultConfig();
+        BrigadierManager.setPlugin(this);
+        BrigadierManager.setConfigFile(this.getConfig());
+        this.saveDefaultConfig();
         Bukkit.getPluginManager().registerEvents(new PlayerCommandSendListener(), this);
         BrigadierCommand brigadierCommand = new BrigadierCommand();
-        getCommand("brigadier").setExecutor(brigadierCommand);
-        getCommand("brigadier").setTabCompleter(brigadierCommand);
+        this.getCommand("brigadier").setExecutor(brigadierCommand);
+        this.getCommand("brigadier").setTabCompleter(brigadierCommand);
         new Metrics(this, 13996);
         new UpdateUtil(this, 83140).getVersion(version -> {
-            if (!getDescription().getVersion().equals(version)) {
-                getLogger().warning("You are using an outdated version (" + getDescription().getVersion() + "). Download the latest version (" + version + ") here:  https://spigotmc.org/resources/brigadiermanager.83140.");
+            if (!this.getDescription().getVersion().equals(version)) {
+                this.getLogger().warning("You are using an outdated version (" + this.getDescription().getVersion() + "). Download the latest version (" + version + ") here: https://spigotmc.org/resources/brigadiermanager.83140.");
             }
         });
     }
