@@ -1,41 +1,42 @@
 /*
- * Copyright 2022 Clément "carlodrift" Raynaud and contributors
+ * Copyright 2020, 2021, 2022 Clément "carlodrift" Raynaud and contributors
  *
- * This file is part of BrigadierManager.
+ * This file is part of TabCompleterManager.
  *
- * BrigadierManager is free software: you can redistribute it and/or modify
+ * TabCompleterManager is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * BrigadierManager is distributed in the hope that it will be useful,
+ * TabCompleterManager is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with BrigadierManager.  If not, see <https://www.gnu.org/licenses/>.
+ * along with TabCompleterManager.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package net.clementraynaud.brigadiermanager.commands.brigadier;
+package net.clementraynaud.tabcompletermanager.commands.tcm;
 
-import net.clementraynaud.brigadiermanager.BrigadierManager;
-import net.clementraynaud.brigadiermanager.config.Config;
-import net.clementraynaud.brigadiermanager.util.MessageUtil;
+import net.clementraynaud.tabcompletermanager.TabCompleterManager;
+import net.clementraynaud.tabcompletermanager.config.Config;
+import net.clementraynaud.tabcompletermanager.util.MessageUtil;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.apache.commons.text.CaseUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.PluginCommand;
 
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public enum BrigadierOption {
+public enum TcmOption {
     DISPLAYED {
         @Override
         public void execute(CommandSender sender, String arg) {
-            TextComponent message = new TextComponent(BrigadierManager.PREFIX + ChatColor.GRAY + "Move your mouse over this message to see the displayed commands.");
+            TextComponent message = new TextComponent(TabCompleterManager.PREFIX + ChatColor.GRAY + "Move your mouse over this message to see the displayed commands.");
             MessageUtil.setHoverEvent(message, Config.getDisplayedCommands().toString());
             sender.spigot().sendMessage(message);
         }
@@ -43,7 +44,7 @@ public enum BrigadierOption {
     HIDDEN {
         @Override
         public void execute(CommandSender sender, String arg) {
-            TextComponent message = new TextComponent(BrigadierManager.PREFIX + ChatColor.GRAY + "Move your mouse over this message to see the hidden commands.");
+            TextComponent message = new TextComponent(TabCompleterManager.PREFIX + ChatColor.GRAY + "Move your mouse over this message to see the hidden commands.");
             MessageUtil.setHoverEvent(message, Config.getHiddenCommands().toString());
             sender.spigot().sendMessage(message);
         }
@@ -52,7 +53,7 @@ public enum BrigadierOption {
         @Override
         public void execute(CommandSender sender, String arg) {
             if (arg.isEmpty()) {
-                BrigadierCommand.sendUsage(sender);
+                TcmCommand.sendUsage(sender);
                 return;
             }
             if (!Config.getDisplayedCommands().contains(arg)) {
@@ -87,29 +88,26 @@ public enum BrigadierOption {
             Config.setOperatorsIgnored(!Config.areOperatorsIgnored());
         }
     },
-    RETAIN_BRIGADIER_COMMAND_FOR_OPS {
-        @Override
-        public void execute(CommandSender sender, String arg) {
-            if (Config.isBrigadierCommandRetainedForOperators()) {
-                MessageUtil.sendValidationMessage(sender, "/brigadier is no longer retained for operators.");
-            } else {
-                MessageUtil.sendValidationMessage(sender, "/brigadier is now retained for operators.");
-            }
-            Config.setBrigadierCommandRetainedForOperators(!Config.isBrigadierCommandRetainedForOperators());
-        }
-    },
     UNHIDE {
         @Override
         public void execute(CommandSender sender, String arg) {
             if (arg.isEmpty()) {
-                BrigadierCommand.sendUsage(sender);
+                TcmCommand.sendUsage(sender);
                 return;
             }
             if (!Config.getHiddenCommands().contains(arg)) {
-                MessageUtil.sendErrorMessage(sender, "/" + arg + " is not hidden.");
+                String permissionIndication = "";
+                if (TcmOption.permissionIndication(arg) != null) {
+                    permissionIndication = String.format(" Players without permission %s cannot see it though.", TcmOption.permissionIndication(arg));
+                }
+                MessageUtil.sendErrorMessage(sender, "/" + arg + " is not hidden." + permissionIndication);
                 return;
             }
-            MessageUtil.sendValidationMessage(sender, "/" + arg + " is now displayed.");
+            String permissionIndication = "";
+            if (TcmOption.permissionIndication(arg) != null) {
+                permissionIndication = " to players with the permission " + TcmOption.permissionIndication(arg);
+            }
+            MessageUtil.sendValidationMessage(sender, "/" + arg + " is now displayed" + permissionIndication + ".");
             Config.removeHiddenCommand(arg);
         }
     },
@@ -126,15 +124,23 @@ public enum BrigadierOption {
     };
 
     public static Set<String> getList() {
-        return Stream.of(BrigadierOption.values())
+        return Stream.of(TcmOption.values())
                 .map(Enum::toString)
                 .collect(Collectors.toSet());
     }
 
-    public static BrigadierOption getOption(String option) {
-        return Stream.of(BrigadierOption.values())
-                .filter(o -> o.toString().equalsIgnoreCase(option))
+    public static TcmOption getOption(String option) {
+        return Stream.of(TcmOption.values())
+                .filter(opt -> opt.toString().equalsIgnoreCase(option))
                 .findFirst().orElse(null);
+    }
+
+    private static String permissionIndication(String arg) {
+        PluginCommand command = TabCompleterManager.getPlugin().getCommand(arg);
+        if (command != null) {
+            return command.getPermission();
+        }
+        return null;
     }
 
     public abstract void execute(CommandSender sender, String arg);

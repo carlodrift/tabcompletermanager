@@ -1,25 +1,25 @@
 /*
- * Copyright 2022 Clément "carlodrift" Raynaud and contributors
+ * Copyright 2020, 2021, 2022 Clément "carlodrift" Raynaud and contributors
  *
- * This file is part of BrigadierManager.
+ * This file is part of TabCompleterManager.
  *
- * BrigadierManager is free software: you can redistribute it and/or modify
+ * TabCompleterManager is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * BrigadierManager is distributed in the hope that it will be useful,
+ * TabCompleterManager is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with BrigadierManager.  If not, see <https://www.gnu.org/licenses/>.
+ * along with TabCompleterManager.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package net.clementraynaud.brigadiermanager.util;
+package net.clementraynaud.tabcompletermanager.util;
 
-import net.clementraynaud.brigadiermanager.BrigadierManager;
+import net.clementraynaud.tabcompletermanager.TabCompleterManager;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -39,7 +39,7 @@ public interface MessageUtil {
     }
 
     static void sendMessage(CommandSender sender, String message, ChatColor color) {
-        sender.sendMessage(BrigadierManager.PREFIX + color + message);
+        sender.sendMessage(TabCompleterManager.PREFIX + color + message);
     }
 
     static void sendErrorMessage(CommandSender sender, String message) {
